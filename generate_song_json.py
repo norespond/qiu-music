@@ -1,28 +1,29 @@
 import os
 import json
 
-music_dir = os.path.join(os.path.dirname(__file__), 'music')
-output_file = os.path.join(os.path.dirname(__file__), './music/song.json')
-exts = ['.mp3', '.ogg', '.flac', '.wav', '.m4a']
+# 配置
+music_dir = "music"   # 音乐文件夹路径
+output_file = os.path.join(music_dir, "song.json")
 
-def parse_file_name(file):
-    base = os.path.splitext(file)[0]
-    name = base
-    artist = 'artist'
-    if ' - ' in base:
-        artist, name = base.split(' - ', 1)
-        artist = artist.strip()
-        name = name.strip()
-    elif '_' in base:
-        idx = base.rfind('_')
-        name = base[:idx].strip()
-        artist = base[idx+1:].strip()
-    return {"name": name, "artist": artist, "file": file}
+# 支持的音频格式
+supported_ext = [".mp3", ".flac", ".wav", ".ogg", ".m4a"]
 
-files = [f for f in os.listdir(music_dir) if os.path.splitext(f)[1].lower() in exts]
-song_list = [parse_file_name(f) for f in files]
+songs = []
 
-with open(output_file, 'w', encoding='utf-8') as f:
-    json.dump(song_list, f, ensure_ascii=False, indent=4)
+# 扫描文件夹
+for file in os.listdir(music_dir):
+    ext = os.path.splitext(file)[1].lower()
+    if ext in supported_ext:
+        name = os.path.splitext(file)[0]
+        songs.append({
+            "name": name,
+            "artist": "未知艺术家",
+            "cover": "",
+            "file": file
+        })
 
-print(f'song.json 已生成，共 {len(song_list)} 首')
+# 保存为 JSON
+with open(output_file, "w", encoding="utf-8") as f:
+    json.dump(songs, f, ensure_ascii=False, indent=2)
+
+print(f"✅ 成功生成 {output_file}，共 {len(songs)} 首歌")
